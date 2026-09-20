@@ -1,0 +1,10 @@
+{
+  "name": "substrate-rng",
+  "version": "0.0.1",
+  "description": "Deterministic RNG from substrate state",
+  "main": "src/index.ts",
+  "type": "module",
+  "scripts": { "test": "node --test src/tests/*.test.ts" },
+  "keywords": ["substrate", "rng", "deterministic"],
+  "license": "MIT"
+}
