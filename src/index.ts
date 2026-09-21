@@ -266,17 +266,34 @@ export interface Distribution<T> {
 }
 
 export class UniformInt implements Distribution<number> {
-  constructor(private lo: number, private hi: number, private rng: Xoshiro256) {}
+  private lo: number;
+  private hi: number;
+  private rng: Xoshiro256;
+  constructor(lo: number, hi: number, rng: Xoshiro256) {
+    this.lo = lo;
+    this.hi = hi;
+    this.rng = rng;
+  }
   sample(): number { return this.rng.nextRange(this.lo, this.hi); }
 }
 
 export class Bernoulli implements Distribution<boolean> {
-  constructor(private p: number, private rng: Xoshiro256) {}
+  private p: number;
+  private rng: Xoshiro256;
+  constructor(p: number, rng: Xoshiro256) {
+    this.p = p;
+    this.rng = rng;
+  }
   sample(): boolean { return this.rng.nextBool(this.p); }
 }
 
 export class Exponential implements Distribution<number> {
-  constructor(private lambda: number, private rng: Xoshiro256) {}
+  private lambda: number;
+  private rng: Xoshiro256;
+  constructor(lambda: number, rng: Xoshiro256) {
+    this.lambda = lambda;
+    this.rng = rng;
+  }
   sample(): number {
     let u = this.rng.next();
     if (u < 1e-15) u = 1e-15;
@@ -285,7 +302,12 @@ export class Exponential implements Distribution<number> {
 }
 
 export class Poisson implements Distribution<number> {
-  constructor(private lambda: number, private rng: Xoshiro256) {}
+  private lambda: number;
+  private rng: Xoshiro256;
+  constructor(lambda: number, rng: Xoshiro256) {
+    this.lambda = lambda;
+    this.rng = rng;
+  }
   sample(): number {
     // Knuth's algorithm; OK for small lambda
     if (this.lambda < 30) {
