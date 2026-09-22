@@ -100,6 +100,39 @@ Xoshiro256** fits all four. PCG64 is the alternative when you want statistical e
 
 Don't use FNV-1a for cryptographic seeds. Use `crypto.getRandomValues()` (32 bytes) + import as BigInt.
 
+## Quilt receipts: receipted randomness
+
+`src/ledger.ts` books every draw from a seedable RNG as a hash-chained
+receipt in the fleet's 4quilt family envelope — the same canonical JSON
++ fnv1a-32 recipe as the Python family (laya4quilt, tagseq2tagseq4quilt,
+gpu_bpe4quilt, jev-ultrafast-quilt). A draw is a deterministic
+consequence of (seed, algorithm, state, draw_index); the ledger makes
+that consequence auditable after the fact:
+
+```typescript
+import { Xoshiro256 } from "substrate-rng";
+import { DrawLedger } from "substrate-rng/ledger";
+
+const rng = new Xoshiro256("breed-tournament");
+const ledger = new DrawLedger("substrate-rng");
+ledger.bind("Xoshiro256**", "breed-tournament", rng.serialize());
+const before = rng.serialize();
+const pick = rng.nextRange(0, 100);     // the decision
+const after = rng.serialize();
+ledger.draw(0, "uniform_int", { lo: 0, hi: 100 }, pick, before, after);
+const [ok, bad, why] = ledger.verify(); // => [true, null, null]
+```
+
+Cross-language: chains booked here verify with the Python family
+verifier unmodified, and Python-booked fixtures verify here
+(`src/tests/ledger.test.ts` freezes real family rows as fixtures).
+Row shape, canonical-JSON contract, and the field-convention drift
+notes live in the module header of `src/ledger.ts`.
+
+Refusals are named rows, not silent gaps: state divergence after
+`deserialize()` books `REFUSED` with the reason — replay divergence is
+a lie about determinism, and the ledger says so in-band.
+
 ## License
 
 MIT.
